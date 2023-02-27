@@ -1,12 +1,11 @@
-﻿using Emgu.CV;
-using Emgu.CV.UI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Emgu.CV;
 using Emgu.CV.Structure;
+using Emgu.CV.UI;
 
 namespace Cv02
 {
@@ -36,14 +35,14 @@ namespace Cv02
 		/// </summary>
 		/// <param name="img">Image where we will find start point</param>
 		/// <returns>start point</returns>
-		public static Point GetStart(Mat img)
+		public static Point GetStart(Image<Bgr, Byte> img)
 		{
 
 			for (int y = 0; y < img.Height; y++)
 				for (int x = 0; x < img.Width; x++)
 				{
 
-					if (img.Bitmap.GetPixel(x, y).R == 0)
+					if (img.ToBitmap().GetPixel(x, y).R == 0)
 						return new Point(x, y);
 				}
 
@@ -90,7 +89,8 @@ namespace Cv02
 		{
 
 			// read image
-			Mat img = CvInvoke.Imread("dvojka.png", Emgu.CV.CvEnum.LoadImageType.Grayscale);
+			Mat mat = CvInvoke.Imread(imageName, Emgu.CV.CvEnum.ImreadModes.Grayscale);
+			Image<Bgr, Byte> img = mat.ToImage<Bgr, Byte>();
 
 			// find starting point
 			Point start = GetStart(img);
@@ -101,8 +101,7 @@ namespace Cv02
 			int smer = 3;
 			borderPoints.Add(start);
 
-			Image<Bgr, Byte> i = img.ToImage<Bgr, Byte>();
-			i[start.y, start.x] = new Bgr(System.Drawing.Color.Red);
+			//img[start.y, start.x] = new Bgr(System.Drawing.Color.Red);
 
 			int dt = (smer + 3) % 4;
 			while (true)
@@ -117,10 +116,10 @@ namespace Cv02
 				}
 
 				// is border pixel
-				if (i[next.y, next.x].Red == 0)
+				if (img[next.y, next.x].R == 0)
 				{
 					borderPoints.Add(next);
-					i[next.y, next.x] = new Bgr(System.Drawing.Color.Red);
+				//	img[next.y, next.x] = new Bgr(System.Drawing.Color.Red);
 					start = next;
 					dt = (dt + 3) % 4;
 
@@ -131,11 +130,11 @@ namespace Cv02
 
 			ImageViewer viewer = new ImageViewer(); //create an image viewer
 
-			viewer.Image = i; //draw the image obtained from camera
+			viewer.Image = img; //draw the image obtained from camera
 			viewer.ShowDialog(); //show the image viewer
 		}
 
-		public static void Clustering(string imageName)
+		/*public static void Clustering(string imageName)
 		{
 
 			// Load the image
@@ -182,7 +181,7 @@ namespace Cv02
 			{
 				Console.WriteLine("Label {0}: {1}", i, labels[i]);
 			}
-		}
+		}*/
 
 		static void Main(string[] args)
 		{
